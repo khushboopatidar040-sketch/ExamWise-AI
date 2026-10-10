@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Analyze previous exam papers and plan smarter revision with ExamWise AI.">
+    <title>ExamWise AI | Smart Exam Preparation</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="script.js" defer></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header class="topbar">
+        <a href="#" class="brand">
+            <span class="brand-icon">E</span>
+            <span>ExamWise <span class="brand-ai">AI</span></span>
+        </a>
+
+        <span class="topbar-label">SMART EXAM PREPARATION</span>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div class="hero-content">
+                <span class="eyebrow">YOUR PERSONAL STUDY PLANNER</span>
+                <h1>Study smarter.<br><span>Score with confidence.</span></h1>
+                <p>
+                    Analyze previous-year papers, discover important topics,
+                    and create a data-driven revision plan.
+                </p>
+            </div>
+            <div class="hero-icon" aria-hidden="true">✦</div>
+        </section>
+
+        <section class="input-grid">
+            <div class="panel">
+                <div class="section-heading">
+                    <span class="step-number">01</span>
+                    <div>
+                        <h2>Your syllabus</h2>
+                        <p>Add the topics you need to prepare.</p>
+                    </div>
+                </div>
+
+                <label for="subject">Subject name</label>
+                <input
+                    id="subject"
+                    type="text"
+                    placeholder="Enter any subject"
+                    
+                >
+
+                <label for="syllabus">Syllabus topics</label>
+                <input
+    id="syllabusFile"
+    type="file"
+    accept=".pdf,.png,.jpg,.jpeg"
+    multiple
+>
+<p class="helper-text">Optional: Attach syllabus PDF or images.</p>
+                <textarea
+                    id="syllabus"
+                    rows="6"
+                    placeholder="Enter one topic per line"
+   ></textarea>
+
+                <p class="helper-text">Enter one topic per line.</p>
+            </div>
+
+            <div class="panel">
+                <div class="section-heading">
+                    <span class="step-number">02</span>
+                    <div>
+                        <h2>Previous-year papers</h2>
+                        <p>Paste questions from past exams.</p>
+                    </div>
+                </div>
+
+                <label for="paperYear">Paper year</label>
+                <select id="paperYear">
+                    <option value="" selected disabled>Select paper year</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                </select>
+
+                <label for="questions">Question paper text</label>
+                <input
+    id="paperFiles"
+    type="file"
+    accept=".pdf,.png,.jpg,.jpeg"
+    multiple
+>
+<p class="helper-text">Optional: Attach MST or previous-year paper PDFs/images.</p>
+                <textarea
+                    id="questions"
+                    rows="6"
+                    placeholder="Enter one question per line."
+                ></textarea>
+
+                <p class="helper-text">
+                    Tip: Include marks, if available, in each question.
+                </p>
+            </div>
+        </section>
+
+        <div class="form-group">
+    <label for="notesFiles">Course Notes (Optional)</label>
+    <input
+        id="notesFiles"
+        type="file"
+        accept=".pdf,.png,.jpg,.jpeg"
+        multiple
+    >
+    <p class="helper-text">
+        Upload course notes as PDFs or images.
+    </p>
+</div>
+
+        <section class="action-bar">
+            <div>
+                <h3>Ready to analyze?</h3>
+                <p>We'll rank topics using the papers you provide.</p>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" id="demoBtn" class="btn btn-secondary">
+                    Try Demo
+                </button>
+                <button type="button" id="analyzeBtn" class="btn btn-primary">
+                    Analyze Papers <span>→</span>
+                </button>
+            </div>
+        </section>
+
+        <div id="message" class="message" role="status" aria-live="polite" hidden></div>
+
+        <section id="results" hidden>
+            <div class="results-heading">
+                <div>
+                    <span class="eyebrow">YOUR ANALYSIS</span>
+                    <h2 id="resultsTitle">Study priority report</h2>
+                    <p id="resultsSubtitle">Based on the papers you provided.</p>
+                </div>
+                <button type="button" id="resetBtn" class="btn btn-secondary">
+                    Reset
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-label">Questions analyzed</span>
+                    <strong id="totalQuestions">0</strong>
+                    <span class="stat-note">Extracted question entries</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Topics identified</span>
+                    <strong id="topicsIdentified">0</strong>
+                    <span class="stat-note">Topics matched to questions</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">High-priority topics</span>
+                    <strong id="highPriority">0</strong>
+                    <span class="stat-note">Focus on these first</span>
+                </article>
+
+                <article class="stat-card">
+                    <span class="stat-label">Total marks found</span>
+                    <strong id="totalMarks">0</strong>
+                    <span class="stat-note">Marks stated in the input</span>
+                </article>
+            </div>
+
+            <div class="results-grid">
+                <div class="panel">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Topic frequency</h2>
+                            <p>Matched questions per topic.</p>
+                        </div>
+                    </div>
+                    <div id="frequencyChart" class="frequency-chart"></div>
+                </div>
+
+                <div class="panel">
+    <div class="section-heading">
+        <div>
+            <h2>Year-wise Trends</h2>
+            <p>Compare topic frequency across different years.</p>
+        </div>
+    </div>
+    <div id="yearlyTrends" class="frequency-chart"></div>
+</div>
+
+                <div class="panel">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Question distribution</h2>
+                            <p>Types identified in your papers.</p>
+                        </div>
+                    </div>
+                    <div id="typeDistribution" class="type-distribution"></div>
+
+                    <div class="difficulty-summary">
+                        <h3>Difficulty distribution</h3>
+                        <div id="difficultyDistribution"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel priority-panel">
+                <div class="section-heading">
+                    <div>
+                        <h2>Ranked study priorities</h2>
+                        <p>Recommended revision order with reasons and confidence.</p>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank / Topic</th>
+                                <th>Frequency</th>
+                                <th>Question types</th>
+                                <th>Priority</th>
+                                <th>Confidence</th>
+                                <th>Why this rank?</th>
+                            </tr>
+                        </thead>
+                        <tbody id="priorityTable"></tbody>
+                    </table>
+                </div>
+
+                <p class="disclaimer">
+                    Predictions are estimates based on supplied papers, not
+                    guarantees of what will appear in an upcoming exam.
+                </p>
+            </div>
+
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <h2>Revision plan</h2>
+                        <p>A suggested order for your next study session.</p>
+                    </div>
+                </div>
+                <ol id="revisionPlan" class="revision-plan"></ol>
+            </div>
+
+            <div id="unmatchedSection" class="panel" hidden>
+                <div class="section-heading">
+                    <div>
+                        <h2>Unmatched questions</h2>
+                        <p>Review these questions and update your syllabus if needed.</p>
+                    </div>
+                </div>
+                <ul id="unmatchedQuestions"></ul>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>ExamWise AI · Turn past papers into a smarter study plan.</p>
+        </footer>
+    </main>
+</body>
+</html>
